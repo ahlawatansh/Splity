@@ -1,0 +1,6 @@
+{
+  "name": "Splity",
+  "description": "Splity - Modern Personal & Shared Finance Management System with AI Copilot, Smart Budgeting, Group Split Engine, and Verified PDF Receipts.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
