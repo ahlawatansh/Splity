@@ -65,7 +65,7 @@ import {
 } from './server/services/notification.service';
 import { db } from './server/db';
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   const app = express();
