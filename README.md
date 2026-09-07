@@ -51,13 +51,6 @@ Designed with an **neo-minimalist aesthetic theme**, Splity blends everyday tran
 
 ---
 
-### 4. Modern Downloadable PDF Receipt
-> *Single-click verified financial audit receipt styled like a modern fintech ticket with official logo, Code 128 barcode, and itemized breakdown.*
-
-![Modern Splity Receipt](./screenshots/modern-receipt-pdf.png)
-
----
-
 ## ✨ Key Features & Highlights
 
 ### 1. 📊 Smart Personal Budgeting & Category Limits
