@@ -77,6 +77,17 @@ const MainAppContent: React.FC = () => {
     );
   }
 
+  if (showProfileSetup) {
+    return (
+      <div className="min-h-screen relative overflow-hidden bg-[#fafbfa]">
+        <ProfileSetupModal
+          isOpen={true}
+          onComplete={() => setShowProfileSetup(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       <AppShell currentTab={currentTab} onTabChange={handleTabChange}>

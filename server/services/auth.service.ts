@@ -15,7 +15,11 @@ export async function signupUser(phone: string, email: string, password: string)
   const newUser: User = {
     id: userId,
     email: email.toLowerCase(),
-    phone,
+    phone: phone || '',
+    name: '',
+    spendingCeiling: 0,
+    targetSavings: 0,
+    profileSetupCompleted: false,
     createdAt: new Date().toISOString(),
   };
 
@@ -192,6 +196,10 @@ export async function loginOrCreateOAuthUser(email: string, displayName?: string
       id: userId,
       email: email.toLowerCase(),
       phone: '',
+      name: displayName || '',
+      spendingCeiling: 0,
+      targetSavings: 0,
+      profileSetupCompleted: false,
       createdAt: new Date().toISOString(),
     };
     db.data.users.push(user);

@@ -117,7 +117,7 @@ export const TopHybridSearchBar: React.FC<TopHybridSearchBarProps> = ({
 
   // Extract only first name and single character monogram
   const storedName = typeof window !== 'undefined' ? localStorage.getItem('profile_fullname') : null;
-  const rawName = (storedName || (user?.email ? user.email.split('@')[0] : 'User')) || 'User';
+  const rawName = user?.name || storedName || (user?.email ? user.email.split('@')[0] : 'User') || 'User';
   let firstName = rawName.trim().split(/[\s._-]+/)[0] || 'User';
   if (firstName.toLowerCase() === 'demo') {
     firstName = 'User';

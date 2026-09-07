@@ -30,19 +30,19 @@ export const DemoProfileModal: React.FC<DemoProfileModalProps> = ({
   onClose,
   onActionResult
 }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserProfile } = useAuth();
 
   const [fullName, setFullName] = useState(() => {
-    return localStorage.getItem('profile_fullname') || 'Ansh Ahlawat';
+    return user?.name || localStorage.getItem('profile_fullname') || '';
   });
   const [mobilePhone, setMobilePhone] = useState(() => {
-    return localStorage.getItem('profile_phone') || user?.phone || '+91 98765 43210';
+    return user?.phone || localStorage.getItem('profile_phone') || '';
   });
   const [spendingCeiling, setSpendingCeiling] = useState(() => {
-    return localStorage.getItem('profile_ceiling') || '45000';
+    return user?.spendingCeiling ? String(user.spendingCeiling) : (localStorage.getItem('profile_ceiling') || '');
   });
   const [targetSavings, setTargetSavings] = useState(() => {
-    return localStorage.getItem('profile_savings') || '10000';
+    return user?.targetSavings !== undefined ? String(user.targetSavings) : (localStorage.getItem('profile_savings') || '');
   });
 
   const [saving, setSaving] = useState(false);
@@ -54,10 +54,10 @@ export const DemoProfileModal: React.FC<DemoProfileModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setFullName(localStorage.getItem('profile_fullname') || 'Ansh Ahlawat');
-      setMobilePhone(localStorage.getItem('profile_phone') || user?.phone || '+91 98765 43210');
-      setSpendingCeiling(localStorage.getItem('profile_ceiling') || '45000');
-      setTargetSavings(localStorage.getItem('profile_savings') || '10000');
+      setFullName(user?.name || localStorage.getItem('profile_fullname') || '');
+      setMobilePhone(user?.phone || localStorage.getItem('profile_phone') || '');
+      setSpendingCeiling(user?.spendingCeiling ? String(user.spendingCeiling) : (localStorage.getItem('profile_ceiling') || ''));
+      setTargetSavings(user?.targetSavings !== undefined ? String(user.targetSavings) : (localStorage.getItem('profile_savings') || ''));
     }
   }, [isOpen, user]);
 
@@ -65,24 +65,27 @@ export const DemoProfileModal: React.FC<DemoProfileModalProps> = ({
     const raw = e.target.value;
     const afterPrefix = raw.replace(/^(\+91|\+9|\+)?\s*/, '');
     const digits = afterPrefix.replace(/\D/g, '').slice(0, 10);
-    setMobilePhone(digits ? `+91 ${digits}` : '+91 ');
+    setMobilePhone(digits ? `+91 ${digits}` : '');
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    localStorage.setItem('profile_fullname', fullName.trim() || 'Ansh Ahlawat');
-    localStorage.setItem('profile_phone', mobilePhone.trim() || '+91 98765 43210');
-    localStorage.setItem('profile_ceiling', spendingCeiling.trim() || '45000');
-    localStorage.setItem('profile_savings', targetSavings.trim() || '10000');
-
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await updateUserProfile({
+        name: fullName.trim(),
+        phone: mobilePhone.trim(),
+        spendingCeiling: Number(spendingCeiling) || 0,
+        targetSavings: Number(targetSavings) || 0,
+      });
       setSaveSuccess(true);
-      window.dispatchEvent(new CustomEvent('splity:refresh'));
       onActionResult?.();
       setTimeout(() => setSaveSuccess(false), 2500);
-    }, 300);
+    } catch (err: any) {
+      alert(err.message || 'Failed to save profile settings.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Export CSV Ledger
@@ -176,11 +179,8 @@ export const DemoProfileModal: React.FC<DemoProfileModalProps> = ({
   };
 
   // Display name: first word strictly
-  const rawName = (fullName || (user?.email ? user.email.split('@')[0] : 'Ansh')) || 'Ansh';
-  let firstNameOnly = rawName.trim().replace(/^@+/, '').split(/[\s._-]+/)[0] || 'Ansh';
-  if (firstNameOnly.toLowerCase() === 'demo') {
-    firstNameOnly = 'Ansh';
-  }
+  const rawName = (fullName || (user?.email ? user.email.split('@')[0] : 'User')) || 'User';
+  let firstNameOnly = rawName.trim().replace(/^@+/, '').split(/[\s._-]+/)[0] || 'User';
   const displayFirstName = firstNameOnly.charAt(0).toUpperCase() + firstNameOnly.slice(1);
   const initials = displayFirstName.charAt(0).toUpperCase();
 
@@ -278,12 +278,14 @@ export const DemoProfileModal: React.FC<DemoProfileModalProps> = ({
                 </span>
                 <input
                   type="number"
+                  min="1"
+                  step="1"
                   value={spendingCeiling}
                   onClick={(e) => (e.target as HTMLInputElement).select()}
                   onFocus={(e) => (e.target as HTMLInputElement).select()}
                   onChange={(e) => setSpendingCeiling(e.target.value)}
                   className="input-base has-left-icon !pl-8 w-full text-xs font-mono-num font-light"
-                  placeholder="45000"
+                  placeholder="50000"
                 />
               </div>
             </div>
@@ -298,12 +300,14 @@ export const DemoProfileModal: React.FC<DemoProfileModalProps> = ({
                 </span>
                 <input
                   type="number"
+                  min="0"
+                  step="1"
                   value={targetSavings}
                   onClick={(e) => (e.target as HTMLInputElement).select()}
                   onFocus={(e) => (e.target as HTMLInputElement).select()}
                   onChange={(e) => setTargetSavings(e.target.value)}
                   className="input-base has-left-icon !pl-8 w-full text-xs font-mono-num font-light"
-                  placeholder="10000"
+                  placeholder="40000"
                 />
               </div>
             </div>

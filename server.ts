@@ -65,7 +65,7 @@ import {
 } from './server/services/notification.service';
 import { db } from './server/db';
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 async function startServer() {
   const app = express();
@@ -198,6 +198,32 @@ async function startServer() {
     const user = db.data.users.find((u) => u.id === req.user!.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
+  });
+
+  app.patch('/api/me', requireUser, async (req: AuthRequest, res) => {
+    try {
+      const user = db.data.users.find((u) => u.id === req.user!.id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      const { name, phone, spendingCeiling, targetSavings, profileSetupCompleted, month } = req.body;
+      if (name !== undefined) user.name = String(name).trim();
+      if (phone !== undefined) user.phone = String(phone).trim();
+      if (spendingCeiling !== undefined) {
+        const ceilingInt = Math.round(Number(spendingCeiling));
+        user.spendingCeiling = ceilingInt;
+        const targetMonth = month || new Date().toISOString().substring(0, 7);
+        if (ceilingInt > 0) {
+          await upsertMonthlyBudget(user.id, targetMonth, ceilingInt);
+        }
+      }
+      if (targetSavings !== undefined) user.targetSavings = Math.round(Number(targetSavings));
+      if (profileSetupCompleted !== undefined) user.profileSetupCompleted = Boolean(profileSetupCompleted);
+
+      db.save();
+      res.json(user);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Failed to update profile' });
+    }
   });
 
   // --- CATEGORY ROUTES ---
@@ -345,7 +371,13 @@ async function startServer() {
       if (!month || limitAmount === undefined) {
         return res.status(400).json({ error: 'month and limitAmount required' });
       }
-      const budget = await upsertMonthlyBudget(req.user!.id, month, Number(limitAmount));
+      const limitInt = Math.round(Number(limitAmount));
+      const budget = await upsertMonthlyBudget(req.user!.id, month, limitInt);
+      const user = db.data.users.find((u) => u.id === req.user!.id);
+      if (user && limitInt > 0) {
+        user.spendingCeiling = limitInt;
+      }
+      db.save();
       res.json(budget);
     } catch (err: any) {
       res.status(err.status || 500).json({ error: err.message || 'Failed to update monthly budget' });

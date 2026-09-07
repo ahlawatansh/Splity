@@ -89,8 +89,11 @@ const DEMO_USER_ID = 'demo-user-123';
 const DEMO_USER: User = {
   id: DEMO_USER_ID,
   email: 'demo@expensebuddy.app',
-  phone: '+91 98765 43210',
+  phone: '+91 00000 00000',
   name: 'Ansh Ahlawat',
+  spendingCeiling: 45000,
+  targetSavings: 40000,
+  profileSetupCompleted: true,
   createdAt: new Date().toISOString(),
 };
 

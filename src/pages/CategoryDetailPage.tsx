@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Calendar, Save, X } from 'lucide-react';
+import { Plus, Calendar, Save, X, Wallet, Pencil, Check } from 'lucide-react';
 import { apiRequest } from '../api/httpClient.js';
 import { Category, CategoryBudget } from '../types.js';
 import { BudgetProgressBar } from '../components/BudgetProgressBar.js';
@@ -10,6 +10,10 @@ export const CategoryDetailPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<CategoryBudget[]>([]);
   const [uncategorizedAmount, setUncategorizedAmount] = useState(0);
+  const [monthlyBudgetLimit, setMonthlyBudgetLimit] = useState<number>(0);
+  const [editingMonthlyCeiling, setEditingMonthlyCeiling] = useState(false);
+  const [ceilingInput, setCeilingInput] = useState('');
+  const [savingCeiling, setSavingCeiling] = useState(false);
 
   // New Category state
   const [newCatName, setNewCatName] = useState('');
@@ -22,14 +26,16 @@ export const CategoryDetailPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [catRes, budgetRes, txnRes] = await Promise.all([
+      const [catRes, budgetRes, txnRes, monthlyRes] = await Promise.all([
         apiRequest<Category[]>('/api/categories'),
         apiRequest<CategoryBudget[]>(`/api/budgets/category?month=${selectedMonth}`),
         apiRequest<any[]>(`/api/transactions?month=${selectedMonth}`),
+        apiRequest<{ limitAmount: number }>(`/api/budgets/monthly?month=${selectedMonth}`),
       ]);
       setCategories(catRes);
       setBudgets(budgetRes);
-      
+      setMonthlyBudgetLimit(monthlyRes?.limitAmount || Number(localStorage.getItem('profile_ceiling')) || 0);
+
       // Calculate uncategorized amount
       const uncategorized = txnRes?.filter((t) => !t.categoryId).reduce((sum, t) => sum + t.amount, 0) || 0;
       setUncategorizedAmount(uncategorized);
@@ -66,7 +72,7 @@ export const CategoryDetailPage: React.FC = () => {
         body: JSON.stringify({
           categoryId,
           month: selectedMonth,
-          limitAmount: Number(limitAmount),
+          limitAmount: Math.round(Number(limitAmount)),
         }),
       });
       setEditingCatId(null);
@@ -87,6 +93,36 @@ export const CategoryDetailPage: React.FC = () => {
     }
   };
 
+  const handleSaveMonthlyCeiling = async () => {
+    const val = Math.round(Number(ceilingInput));
+    if (isNaN(val) || val <= 0) return;
+    setSavingCeiling(true);
+    try {
+      await Promise.all([
+        apiRequest('/api/budgets/monthly', {
+          method: 'POST',
+          body: JSON.stringify({ month: selectedMonth, limitAmount: val }),
+        }),
+        apiRequest('/api/me', {
+          method: 'PATCH',
+          body: JSON.stringify({ spendingCeiling: val, month: selectedMonth }),
+        }),
+      ]);
+      localStorage.setItem('profile_ceiling', String(val));
+      setMonthlyBudgetLimit(val);
+      setEditingMonthlyCeiling(false);
+      window.dispatchEvent(new CustomEvent('splity:refresh'));
+      fetchData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update monthly ceiling');
+    } finally {
+      setSavingCeiling(false);
+    }
+  };
+
+  const totalCategoryAllocated = budgets.reduce((acc, b) => acc + (b.limitAmount || 0), 0);
+  const totalSpentAll = budgets.reduce((acc, b) => acc + (b.spentAmount || 0), 0) + uncategorizedAmount;
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
@@ -96,7 +132,7 @@ export const CategoryDetailPage: React.FC = () => {
             Budgets & Spending Targets
           </h1>
           <p className="text-xs sm:text-[13px] text-gray-500 font-light mt-0.5 tracking-tight">
-            Configure monthly category limits and automated consumption alerts.
+            Configure monthly category limits, budget ceiling, and automated alerts.
           </p>
         </div>
 
@@ -108,6 +144,106 @@ export const CategoryDetailPage: React.FC = () => {
             <Plus className="w-3.5 h-3.5" />
             <span>New Category</span>
           </button>
+        </div>
+      </div>
+
+      {/* Monthly Budget Ceiling Hero Card */}
+      <div className="bg-gradient-to-br from-green-800 via-green-900 to-green-950 text-white rounded-3xl p-5 sm:p-6 relative overflow-hidden shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+                <Wallet className="w-4 h-4 text-green-200" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-green-200/90">
+                Monthly Spending Ceiling ({selectedMonth})
+              </span>
+            </div>
+
+            {editingMonthlyCeiling ? (
+              <div className="flex items-center gap-2 pt-2">
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-mono-num font-bold pointer-events-none">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    value={ceilingInput}
+                    onChange={(e) => setCeilingInput(e.target.value)}
+                    placeholder="e.g. 50000"
+                    min="1"
+                    step="1"
+                    autoFocus
+                    className="w-44 h-10 pl-7 pr-3 rounded-2xl bg-white text-gray-900 font-mono-num font-bold text-sm outline-none focus:ring-2 focus:ring-green-400"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSaveMonthlyCeiling}
+                  disabled={savingCeiling || !ceilingInput || Number(ceilingInput) <= 0}
+                  className="h-10 px-4 rounded-2xl bg-white text-green-900 font-medium text-xs flex items-center gap-1.5 hover:bg-green-50 transition-colors cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{savingCeiling ? 'Saving...' : 'Save'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingMonthlyCeiling(false)}
+                  className="h-10 px-3 rounded-2xl bg-white/10 text-white/80 hover:bg-white/20 text-xs transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-baseline gap-3 pt-1">
+                <div className="text-3xl font-mono-num font-bold text-white tracking-tight">
+                  ₹{monthlyBudgetLimit.toLocaleString('en-IN')}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCeilingInput(String(monthlyBudgetLimit || ''));
+                    setEditingMonthlyCeiling(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-xs text-white transition-all cursor-pointer"
+                >
+                  <Pencil className="w-3 h-3" />
+                  <span>Change Ceiling</span>
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-white/60 font-light pt-0.5">
+              Enter any integer value for your monthly ceiling (e.g. 50000, 75000, 100000).
+            </p>
+          </div>
+
+          {/* Quick presets & summary */}
+          <div className="sm:text-right space-y-1.5">
+            <div className="text-xs text-white/70">
+              Allocated to Categories: <span className="font-mono-num font-semibold text-white">₹{totalCategoryAllocated.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="text-xs text-white/70">
+              Spent This Month: <span className="font-mono-num font-semibold text-white">₹{totalSpentAll.toLocaleString('en-IN')}</span>
+            </div>
+            {editingMonthlyCeiling && (
+              <div className="flex flex-wrap gap-1 pt-1 justify-start sm:justify-end">
+                {[30000, 40000, 50000, 60000, 75000, 100000].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setCeilingInput(String(preset))}
+                    className={`px-2 py-0.5 rounded-lg text-[11px] font-mono-num transition-all cursor-pointer ${
+                      ceilingInput === String(preset)
+                        ? 'bg-white text-green-900 font-semibold'
+                        : 'bg-white/10 hover:bg-white/20 text-white/80'
+                    }`}
+                  >
+                    ₹{preset / 1000}k
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -239,7 +375,7 @@ export const CategoryDetailPage: React.FC = () => {
                       </span>
                       <input
                         type="number"
-                        step="100"
+                        step="1"
                         placeholder="Limit"
                         value={limitAmount}
                         onClick={(e) => (e.target as HTMLInputElement).select()}

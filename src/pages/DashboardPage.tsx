@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, ArrowDownLeft, Wallet, PiggyBank, ChevronDown } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Wallet, PiggyBank, ChevronDown, Pencil } from 'lucide-react';
 import {
   FaArrowTrendUp as TrendingUp,
   FaPlus as Plus,
@@ -68,16 +68,29 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
   const [profileBudget, setProfileBudget] = useState<number>(() => {
     const v = typeof window !== 'undefined' ? localStorage.getItem('profile_ceiling') : null;
-    return v ? Number(v) : 45000;
+    if (v) return Number(v);
+    return user?.spendingCeiling || 0;
   });
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [budgetInput, setBudgetInput] = useState('');
+  const [savingBudget, setSavingBudget] = useState(false);
   const [profileSavings, setProfileSavings] = useState<number>(() => {
     const v = typeof window !== 'undefined' ? localStorage.getItem('profile_savings') : null;
-    return v ? Number(v) : 10000;
+    if (v) return Number(v);
+    return user?.targetSavings || 0;
   });
   const [profileFullName, setProfileFullName] = useState<string>(() => {
     const v = typeof window !== 'undefined' ? localStorage.getItem('profile_fullname') : null;
-    return v?.trim() || 'Ansh Ahlawat';
+    return v?.trim() || user?.name || (user?.email ? user.email.split('@')[0] : 'User');
   });
+
+  useEffect(() => {
+    if (user) {
+      if (user.spendingCeiling) setProfileBudget(user.spendingCeiling);
+      if (user.targetSavings) setProfileSavings(user.targetSavings);
+      if (user.name) setProfileFullName(user.name);
+    }
+  }, [user]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -146,14 +159,44 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleSaveBudgetCeiling = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = Math.round(Number(budgetInput));
+    if (isNaN(val) || val <= 0) return;
+    setSavingBudget(true);
+    try {
+      await Promise.all([
+        apiRequest('/api/budgets/monthly', {
+          method: 'POST',
+          body: JSON.stringify({ month: selectedMonth, limitAmount: val }),
+        }),
+        apiRequest('/api/me', {
+          method: 'PATCH',
+          body: JSON.stringify({ spendingCeiling: val, month: selectedMonth }),
+        }),
+      ]);
+      localStorage.setItem('profile_ceiling', String(val));
+      setProfileBudget(val);
+      setShowBudgetModal(false);
+      fetchDashboardData();
+      window.dispatchEvent(new CustomEvent('splity:refresh'));
+    } catch (err: any) {
+      alert(err.message || 'Failed to update monthly budget ceiling');
+    } finally {
+      setSavingBudget(false);
+    }
+  };
+
   const now = new Date();
   const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const isCurrentMonth = selectedMonth === currentMonthStr;
 
   const categoryBudgetsTotal = categorySpends.reduce((acc, c) => acc + (c.limitAmount || 0), 0);
-  const totalCategoryLimit = isCurrentMonth
-    ? (profileBudget > 0 ? profileBudget : (summary?.monthlyBudget || categoryBudgetsTotal || 45000))
-    : (summary?.monthlyBudget || categoryBudgetsTotal || profileBudget || 45000);
+  const totalCategoryLimit = (summary?.monthlyBudget && summary.monthlyBudget > 0)
+    ? summary.monthlyBudget
+    : (profileBudget > 0
+        ? profileBudget
+        : (categoryBudgetsTotal > 0 ? categoryBudgetsTotal : 0));
 
   const totalExpense = summary?.totalExpense ?? 0;
   // Default income zero for all new accounts without income transactions
@@ -210,17 +253,41 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             <span className="text-[11px] font-semibold uppercase tracking-wider text-green-200/80 pt-1.5 pl-0.5">
               Total Budget
             </span>
-            <button
-              onClick={() => onNavigate('categories')}
-              title="View Budgets"
-              className="w-9 h-9 sm:w-9.5 sm:h-9.5 rounded-full flex items-center justify-center bg-[#edf4ed] text-green-800 hover:bg-[#e2ede2] transition-all cursor-pointer shrink-0"
-            >
-              <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={1.5} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setBudgetInput(String(totalCategoryLimit || profileBudget || ''));
+                  setShowBudgetModal(true);
+                }}
+                title="Edit Budget Ceiling"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer shrink-0"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => onNavigate('categories')}
+                title="View Budgets"
+                className="w-9 h-9 sm:w-9.5 sm:h-9.5 rounded-full flex items-center justify-center bg-[#edf4ed] text-green-800 hover:bg-[#e2ede2] transition-all cursor-pointer shrink-0"
+              >
+                <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={1.5} />
+              </button>
+            </div>
           </div>
-          <div>
-            <div className="text-2xl font-mono-num font-bold text-white tracking-tight">
-              ₹{totalCategoryLimit.toLocaleString('en-IN')}
+          <div
+            onClick={() => {
+              setBudgetInput(String(totalCategoryLimit || profileBudget || ''));
+              setShowBudgetModal(true);
+            }}
+            className="cursor-pointer group/amt"
+            title="Click to change monthly budget ceiling"
+          >
+            <div className="text-2xl font-mono-num font-bold text-white tracking-tight flex items-center gap-1.5">
+              <span>₹{totalCategoryLimit.toLocaleString('en-IN')}</span>
+              <span className="text-[10px] font-normal text-white/50 opacity-0 group-hover/amt:opacity-100 transition-opacity bg-white/10 px-1.5 py-0.5 rounded-md">
+                Edit
+              </span>
             </div>
             <p className="text-xs text-white/60 mt-0.5 truncate">
               Spent: ₹{totalExpense.toLocaleString('en-IN')}
@@ -623,6 +690,82 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
           window.dispatchEvent(new CustomEvent('splity:refresh'));
         }}
       />
+
+      {/* Edit Budget Ceiling Modal */}
+      <ModalContainer
+        isOpen={showBudgetModal}
+        onClose={() => setShowBudgetModal(false)}
+        title="Monthly Budget Ceiling"
+        subtitle={`Set your total spending limit for ${selectedMonth}`}
+        maxWidthClass="max-w-md"
+      >
+        <form onSubmit={handleSaveBudgetCeiling} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-700 block">
+              Budget Ceiling Limit (₹)
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium select-none pointer-events-none">
+                ₹
+              </span>
+              <input
+                type="number"
+                value={budgetInput}
+                onChange={(e) => setBudgetInput(e.target.value)}
+                placeholder="e.g. 50000"
+                min="1"
+                step="1"
+                required
+                autoFocus
+                className="input-base has-left-icon !pl-8.5 w-full text-base font-mono-num font-bold text-gray-900"
+              />
+            </div>
+            <p className="text-[11px] text-gray-400 font-light">
+              Enter any integer value (e.g. 30000, 50000, 75000, 100000).
+            </p>
+          </div>
+
+          {/* Quick presets */}
+          <div className="space-y-1">
+            <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
+              Quick Suggestions
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[30000, 40000, 50000, 60000, 75000, 100000].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setBudgetInput(String(preset))}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-mono-num font-medium transition-all cursor-pointer border ${
+                    budgetInput === String(preset)
+                      ? 'bg-[#166534] text-white border-[#166534]'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
+                  }`}
+                >
+                  ₹{preset.toLocaleString('en-IN')}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-2 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setShowBudgetModal(false)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={savingBudget || !budgetInput || Number(budgetInput) <= 0}
+              className="btn-primary"
+            >
+              {savingBudget ? 'Saving...' : 'Update Budget Limit'}
+            </button>
+          </div>
+        </form>
+      </ModalContainer>
     </div>
   );
 };

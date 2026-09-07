@@ -19,6 +19,9 @@ export interface User {
   email: string;
   phone: string;
   name?: string;
+  spendingCeiling?: number;
+  targetSavings?: number;
+  profileSetupCompleted?: boolean;
   createdAt: string;
 }
 

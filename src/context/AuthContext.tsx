@@ -21,7 +21,17 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   signup: (phone: string, email: string, pass: string, confirm: string, fullName?: string) => Promise<void>;
   loginWithGoogle: (googleUser: { email: string; displayName?: string | null; photoURL?: string | null }) => Promise<void>;
+  updateUserProfile: (data: { name: string; phone: string; spendingCeiling: number; targetSavings: number }) => Promise<void>;
   logout: () => Promise<void>;
+}
+
+function isProfileSetupNeeded(u: User | null): boolean {
+  if (!u || !u.id) return false;
+  if (u.id === 'demo-user-123') return false;
+  if (u.profileSetupCompleted) return false;
+  const doneForUser = localStorage.getItem(`profile_setup_done_${u.id}`);
+  if (doneForUser === 'true') return false;
+  return true;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,19 +52,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = getAccessToken();
     const refresh = getRefreshToken();
 
-    // If active user with valid token, no initial loading delay needed -> dashboard immediately
     if (savedUser && token && isTokenValid(token)) {
       return false;
     }
-    // If we have refresh credentials, we need to verify/refresh session
     if (refresh || savedUser) {
       return true;
     }
-    // Brand new user or logged out -> show login immediately
     return false;
   });
 
-  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState<boolean>(() => {
+    const savedUser = getStoredUser();
+    return isProfileSetupNeeded(savedUser);
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -68,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (savedUser && token && isTokenValid(token)) {
         if (isMounted) {
           setUser(savedUser);
+          setShowProfileSetup(isProfileSetupNeeded(savedUser));
           setLoading(false);
         }
         // Background verify /me
@@ -76,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (isMounted && me?.id) {
             setUser(me);
             setStoredUser(me);
+            setShowProfileSetup(isProfileSetupNeeded(me));
           }
         } catch {
           // If network temporarily unavailable, retain local user state
@@ -90,16 +102,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (isMounted) {
             if (res?.accessToken && res?.user) {
               setUser(res.user);
+              setShowProfileSetup(isProfileSetupNeeded(res.user));
             } else if (res?.accessToken) {
               const current = getStoredUser();
               setUser(current);
+              setShowProfileSetup(isProfileSetupNeeded(current));
             } else {
               setUser(null);
+              setShowProfileSetup(false);
             }
           }
         } catch {
           if (isMounted) {
             setUser(null);
+            setShowProfileSetup(false);
           }
         } finally {
           if (isMounted) {
@@ -115,16 +131,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isMounted) {
           if (res?.accessToken && res?.user) {
             setUser(res.user);
+            setShowProfileSetup(isProfileSetupNeeded(res.user));
           } else if (res?.accessToken) {
             const current = getStoredUser();
             setUser(current);
+            setShowProfileSetup(isProfileSetupNeeded(current));
           } else {
             setUser(null);
+            setShowProfileSetup(false);
           }
         }
       } catch {
         if (isMounted) {
           setUser(null);
+          setShowProfileSetup(false);
         }
       } finally {
         if (isMounted) {
@@ -151,13 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setStoredUser(res.user);
     setUser(res.user);
-
-    // Show profile setup if user hasn't completed it before
-    const doneForUser = res.user?.id ? localStorage.getItem(`profile_setup_done_${res.user.id}`) : null;
-    const doneGlobal = localStorage.getItem('profile_setup_done_global');
-    if (!doneForUser && !doneGlobal) {
-      setShowProfileSetup(true);
-    }
+    setShowProfileSetup(isProfileSetupNeeded(res.user));
   };
 
   const signup = async (phone: string, email: string, pass: string, confirm: string, fullName?: string) => {
@@ -176,12 +190,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('profile_fullname', fullName);
     }
 
-    // Show profile setup only once for new accounts
-    const doneForUser = res.user?.id ? localStorage.getItem(`profile_setup_done_${res.user.id}`) : null;
-    const doneGlobal = localStorage.getItem('profile_setup_done_global');
-    if (!doneForUser && !doneGlobal) {
-      setShowProfileSetup(true);
-    }
+    // New accounts ALWAYS show mandatory profile setup
+    setShowProfileSetup(true);
   };
 
   const loginWithGoogle = async (googleUser: { email: string; displayName?: string | null; photoURL?: string | null }) => {
@@ -199,13 +209,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setStoredUser(res.user);
     setUser(res.user);
+    setShowProfileSetup(isProfileSetupNeeded(res.user));
+  };
 
-    // Show profile setup only once for new accounts
-    const doneForUser = res.user?.id ? localStorage.getItem(`profile_setup_done_${res.user.id}`) : null;
-    const doneGlobal = localStorage.getItem('profile_setup_done_global');
-    if (!doneForUser && !doneGlobal) {
-      setShowProfileSetup(true);
+  const updateUserProfile = async (data: { name: string; phone: string; spendingCeiling: number; targetSavings: number }) => {
+    const updatedUser = await apiRequest<User>('/api/me', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        name: data.name,
+        phone: data.phone,
+        spendingCeiling: data.spendingCeiling,
+        targetSavings: data.targetSavings,
+        profileSetupCompleted: true,
+      }),
+    });
+
+    setStoredUser(updatedUser);
+    setUser(updatedUser);
+    if (updatedUser?.id) {
+      localStorage.setItem(`profile_setup_done_${updatedUser.id}`, 'true');
     }
+    localStorage.setItem('profile_fullname', data.name);
+    localStorage.setItem('profile_phone', data.phone);
+    localStorage.setItem('profile_ceiling', String(data.spendingCeiling));
+    localStorage.setItem('profile_savings', String(data.targetSavings));
+    setShowProfileSetup(false);
+    window.dispatchEvent(new CustomEvent('splity:refresh'));
   };
 
   const logout = async () => {
@@ -220,11 +249,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       clearAuthSession();
       setUser(null);
+      setShowProfileSetup(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, showProfileSetup, setShowProfileSetup, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        showProfileSetup,
+        setShowProfileSetup,
+        login,
+        signup,
+        loginWithGoogle,
+        updateUserProfile,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

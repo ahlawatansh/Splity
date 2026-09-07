@@ -3,19 +3,47 @@
     {
       "id": "demo-user-123",
       "email": "demo@expensebuddy.app",
-      "phone": "+91 98765 43210",
+      "phone": "+91 00000 00000",
       "name": "Ansh Ahlawat",
+      "spendingCeiling": 45000,
+      "targetSavings": 40000,
+      "profileSetupCompleted": true,
       "createdAt": "2026-09-07T10:09:22.531Z"
     },
     {
       "id": "2dfcc6c6-03cd-40d1-9ada-3ee823c2f59a",
       "email": "anshahlawat555@gmail.com",
-      "phone": "",
-      "createdAt": "2026-09-07T10:16:22.332Z"
+      "phone": "+91 73571 33910",
+      "createdAt": "2026-09-07T10:16:22.332Z",
+      "name": "Rocky",
+      "spendingCeiling": 50301,
+      "targetSavings": 45000,
+      "profileSetupCompleted": true
+    },
+    {
+      "id": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "email": "anshahlawat.me@gmail.com",
+      "phone": "+91 91100 00000",
+      "name": "Aman",
+      "spendingCeiling": 100000,
+      "targetSavings": 50000,
+      "profileSetupCompleted": true,
+      "createdAt": "2026-09-07T17:46:53.133Z"
+    },
+    {
+      "id": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "email": "user@gmail.com",
+      "phone": "+91 33654 44334",
+      "name": "User",
+      "spendingCeiling": 33,
+      "targetSavings": 44,
+      "profileSetupCompleted": true,
+      "createdAt": "2026-09-07T17:47:50.371Z"
     }
   ],
   "userPasswords": {
-    "demo-user-123": "scrypt:808080:e7b00366a5c2b620a23bc38703a893ef:994488a07fffc568a9e69b55bfdc422dfa4d033a37d3ef02e1a5e35752cb6d6da4023ed5f417a6f126d53f2c2c3e0518f605165888972f32e7c6436387e397d3"
+    "demo-user-123": "scrypt:808080:e7b00366a5c2b620a23bc38703a893ef:994488a07fffc568a9e69b55bfdc422dfa4d033a37d3ef02e1a5e35752cb6d6da4023ed5f417a6f126d53f2c2c3e0518f605165888972f32e7c6436387e397d3",
+    "de5d2b35-a514-404e-98fd-13ea71bc04b8": "scrypt:808080:abf052fabe51eeb0d07d54e911358a60:637a616779c7e7412618cc003b98dd79a18f555bc2e79635baf9ed6702c07fee9e8e132ab0b9ce51cf90f0cfc7b6ab1fe73a97fb22d2c58505c8b5d33a5185ae"
   },
   "sessions": [
     {
@@ -119,7 +147,80 @@
       "userId": "demo-user-123",
       "refreshTokenHash": "0e321f6daac3c99485171779a7168626b670deba7d3d8ab2ed5ce41197e9a832",
       "expiresAt": "2026-10-07T12:55:00.059Z",
-      "createdAt": "2026-09-07T12:55:00.059Z"
+      "createdAt": "2026-09-07T12:55:00.059Z",
+      "revokedAt": "2026-09-07T17:37:36.008Z"
+    },
+    {
+      "id": "08aa6eb4-ee8e-48d9-9fb3-213a4e384411",
+      "userId": "demo-user-123",
+      "refreshTokenHash": "8dcd4d78b0ef4a33eef5b824274f1ef626425160c6561835ceee4fa3f41d8f72",
+      "expiresAt": "2026-10-07T17:37:36.008Z",
+      "createdAt": "2026-09-07T17:37:36.008Z",
+      "revokedAt": "2026-09-07T17:37:43.272Z"
+    },
+    {
+      "id": "29f55049-85d7-4dfc-a9b2-873c6fb6da3a",
+      "userId": "demo-user-123",
+      "refreshTokenHash": "3d91fae8494b20bb1740eb5a26ada42e42ddd247ec344e704c9e81e7b31dbc99",
+      "expiresAt": "2026-10-07T17:37:46.710Z",
+      "createdAt": "2026-09-07T17:37:46.710Z",
+      "revokedAt": "2026-09-07T17:37:49.857Z"
+    },
+    {
+      "id": "83480cf0-2770-4c18-84cc-339bfc9c9e39",
+      "userId": "demo-user-123",
+      "refreshTokenHash": "a2d4ce21df1e97886a30d81e2dd97fa1512b639f9fa4e4dae2eea36a92fe8726",
+      "expiresAt": "2026-10-07T17:37:51.460Z",
+      "createdAt": "2026-09-07T17:37:51.460Z",
+      "revokedAt": "2026-09-07T17:38:19.107Z"
+    },
+    {
+      "id": "aae902ed-588a-4a53-b7cf-5a5b0e1a92a0",
+      "userId": "2dfcc6c6-03cd-40d1-9ada-3ee823c2f59a",
+      "refreshTokenHash": "c6443f79a915a5537136d3d222e0c388533e3521d7a51cb70ae4a506eaba1c4a",
+      "expiresAt": "2026-10-07T17:38:28.360Z",
+      "createdAt": "2026-09-07T17:38:28.360Z",
+      "revokedAt": "2026-09-07T17:40:22.140Z"
+    },
+    {
+      "id": "21cf25b9-d9d8-4c1d-b9ae-9314cd21d4b3",
+      "userId": "demo-user-123",
+      "refreshTokenHash": "fb1bbdf9b88d1d3c95eefdf2c8556b056813692ea9c8e71ba62799530b04faf1",
+      "expiresAt": "2026-10-07T17:46:22.257Z",
+      "createdAt": "2026-09-07T17:46:22.257Z",
+      "revokedAt": "2026-09-07T17:46:26.972Z"
+    },
+    {
+      "id": "e26ee29d-8a61-4674-a713-fca4ae07c766",
+      "userId": "2dfcc6c6-03cd-40d1-9ada-3ee823c2f59a",
+      "refreshTokenHash": "fe78292442304d752292cedfae8c8609e1a6c121633be6ed1c4c3c34c7d1727f",
+      "expiresAt": "2026-10-07T17:46:36.248Z",
+      "createdAt": "2026-09-07T17:46:36.248Z",
+      "revokedAt": "2026-09-07T17:46:44.123Z"
+    },
+    {
+      "id": "96d42e6b-d920-48bf-8652-8e4766e48104",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "refreshTokenHash": "86a353ee792c729d7fb52a462f0e0620a7378290669015a2dd67e00ab14cf9eb",
+      "expiresAt": "2026-10-07T17:46:53.133Z",
+      "createdAt": "2026-09-07T17:46:53.133Z",
+      "revokedAt": "2026-09-07T17:47:29.273Z"
+    },
+    {
+      "id": "ced6c009-1bb4-4c65-a0d4-fda2c13dbf7c",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "refreshTokenHash": "f6f55a28beead750fa9a71287a35c2dd1851f0b1b626c194bfae819f1c423770",
+      "expiresAt": "2026-10-07T17:47:50.371Z",
+      "createdAt": "2026-09-07T17:47:50.371Z",
+      "revokedAt": "2026-09-07T17:48:16.405Z"
+    },
+    {
+      "id": "8dbc4a60-ea68-4cb9-9288-cc792475e8c8",
+      "userId": "demo-user-123",
+      "refreshTokenHash": "b09e15e0164434d761f9f5794d4816fd814b1accb7732b9d756310035bc0616c",
+      "expiresAt": "2026-10-07T17:48:18.265Z",
+      "createdAt": "2026-09-07T17:48:18.265Z",
+      "revokedAt": "2026-09-07T17:49:03.172Z"
     }
   ],
   "categories": [
@@ -234,6 +335,86 @@
       "icon": "Zap",
       "color": "#6366F1",
       "createdAt": "2026-09-07T10:16:22.332Z"
+    },
+    {
+      "id": "93477513-396b-4414-a23a-c47704159eb8",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "name": "Food & Dining",
+      "icon": "Utensils",
+      "color": "#10B981",
+      "createdAt": "2026-09-07T17:46:53.133Z"
+    },
+    {
+      "id": "e339af96-cb3d-4024-ab86-1ce86699c30d",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "name": "Shopping",
+      "icon": "ShoppingBag",
+      "color": "#3B82F6",
+      "createdAt": "2026-09-07T17:46:53.133Z"
+    },
+    {
+      "id": "5779e08b-963e-46c5-b511-b677fe8eddc9",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "name": "Housing & Rent",
+      "icon": "Home",
+      "color": "#8B5CF6",
+      "createdAt": "2026-09-07T17:46:53.133Z"
+    },
+    {
+      "id": "5d3f2b98-3c3e-4a7d-88d6-f1b07032da7e",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "name": "Transport & Fuel",
+      "icon": "Car",
+      "color": "#F59E0B",
+      "createdAt": "2026-09-07T17:46:53.133Z"
+    },
+    {
+      "id": "5fc675f7-d199-481d-9931-f5b33203956a",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "name": "Entertainment",
+      "icon": "Tv",
+      "color": "#EC4899",
+      "createdAt": "2026-09-07T17:46:53.133Z"
+    },
+    {
+      "id": "477f2c2b-b155-4e36-bd27-ab6906917268",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "name": "Food & Dining",
+      "icon": "Utensils",
+      "color": "#10B981",
+      "createdAt": "2026-09-07T17:47:50.371Z"
+    },
+    {
+      "id": "310d19fe-6c89-4d69-8a16-8edec53a6192",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "name": "Shopping",
+      "icon": "ShoppingBag",
+      "color": "#3B82F6",
+      "createdAt": "2026-09-07T17:47:50.371Z"
+    },
+    {
+      "id": "4429bbfe-3905-4cc0-935e-5ab34bbef156",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "name": "Housing & Rent",
+      "icon": "Home",
+      "color": "#8B5CF6",
+      "createdAt": "2026-09-07T17:47:50.371Z"
+    },
+    {
+      "id": "fa6bb3be-3b21-4a3f-b9f1-a10473845ecc",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "name": "Transport & Fuel",
+      "icon": "Car",
+      "color": "#F59E0B",
+      "createdAt": "2026-09-07T17:47:50.371Z"
+    },
+    {
+      "id": "0962dfa5-bb8f-4d76-b3c8-e0e563f4dd91",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "name": "Entertainment",
+      "icon": "Tv",
+      "color": "#EC4899",
+      "createdAt": "2026-09-07T17:47:50.371Z"
     }
   ],
   "transactions": [
@@ -1815,6 +1996,27 @@
       "month": "2026-09",
       "limitAmount": 45000,
       "createdAt": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "7532b272-3a2a-4956-baea-6b098e84d6b4",
+      "userId": "2dfcc6c6-03cd-40d1-9ada-3ee823c2f59a",
+      "month": "2026-09",
+      "limitAmount": 50301,
+      "createdAt": "2026-09-07T17:40:13.329Z"
+    },
+    {
+      "id": "27a28d7e-db6c-4f31-8d9e-0c2ed5792f1e",
+      "userId": "d8938983-0a53-47ff-a9fa-54b5d853cd62",
+      "month": "2026-09",
+      "limitAmount": 100000,
+      "createdAt": "2026-09-07T17:47:17.542Z"
+    },
+    {
+      "id": "b70e734c-c33d-4f4c-bfeb-cbaed3aad0b4",
+      "userId": "de5d2b35-a514-404e-98fd-13ea71bc04b8",
+      "month": "2026-09",
+      "limitAmount": 33,
+      "createdAt": "2026-09-07T17:48:11.374Z"
     }
   ],
   "importJobs": [],
@@ -1826,7 +2028,7 @@
       "type": "REPORT_READY",
       "category": "Reports",
       "message": "Financial Analytics: Your monthly synthesis report for 2026-09 is ready.",
-      "read": false,
+      "read": true,
       "createdAt": "2026-09-07T11:22:51.355Z"
     },
     {
@@ -1834,8 +2036,9 @@
       "userId": "demo-user-123",
       "type": "SYSTEM",
       "message": "Welcome to Expense Buddy! Your accounts, 5 months of historical financial data, and peer splits are loaded.",
-      "read": false,
-      "createdAt": "2026-09-07T10:09:22.535Z"
+      "read": true,
+      "createdAt": "2026-09-07T10:09:22.535Z",
+      "category": "General"
     }
   ],
   "reportJobs": [

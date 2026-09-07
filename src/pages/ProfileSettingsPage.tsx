@@ -9,19 +9,19 @@ import {
 import { Download, Trash2, Save, ShieldCheck } from 'lucide-react';
 
 export const ProfileSettingsPage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserProfile } = useAuth();
 
   const [fullName, setFullName] = useState(() => {
-    return localStorage.getItem('profile_fullname') || 'Ansh Ahlawat';
+    return user?.name || localStorage.getItem('profile_fullname') || '';
   });
   const [mobilePhone, setMobilePhone] = useState(() => {
-    return localStorage.getItem('profile_phone') || '+91 98765 43210';
+    return user?.phone || localStorage.getItem('profile_phone') || '';
   });
   const [spendingCeiling, setSpendingCeiling] = useState(() => {
-    return localStorage.getItem('profile_ceiling') || '45000';
+    return user?.spendingCeiling ? String(user.spendingCeiling) : (localStorage.getItem('profile_ceiling') || '');
   });
   const [targetSavings, setTargetSavings] = useState(() => {
-    return localStorage.getItem('profile_savings') || '10000';
+    return user?.targetSavings !== undefined ? String(user.targetSavings) : (localStorage.getItem('profile_savings') || '');
   });
 
   const [saving, setSaving] = useState(false);
@@ -29,20 +29,23 @@ export const ProfileSettingsPage: React.FC = () => {
   const [exporting, setExporting] = useState(false);
   const [resetting, setResetting] = useState(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    localStorage.setItem('profile_fullname', fullName);
-    localStorage.setItem('profile_phone', mobilePhone);
-    localStorage.setItem('profile_ceiling', spendingCeiling);
-    localStorage.setItem('profile_savings', targetSavings);
-
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await updateUserProfile({
+        name: fullName.trim(),
+        phone: mobilePhone.trim(),
+        spendingCeiling: Number(spendingCeiling) || 0,
+        targetSavings: Number(targetSavings) || 0,
+      });
       setSaveSuccess(true);
-      window.dispatchEvent(new CustomEvent('splity:refresh'));
       setTimeout(() => setSaveSuccess(false), 3500);
-    }, 400);
+    } catch (err: any) {
+      alert(err.message || 'Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleExportCSV = async () => {
@@ -187,12 +190,14 @@ export const ProfileSettingsPage: React.FC = () => {
                 </span>
                 <input
                   type="number"
+                  min="1"
+                  step="1"
                   value={spendingCeiling}
                   onClick={(e) => (e.target as HTMLInputElement).select()}
                   onFocus={(e) => (e.target as HTMLInputElement).select()}
                   onChange={(e) => setSpendingCeiling(e.target.value)}
                   className="input-base has-left-icon !pl-11 w-full font-mono-num font-light"
-                  placeholder="35000"
+                  placeholder="50000"
                 />
               </div>
             </div>
@@ -207,12 +212,14 @@ export const ProfileSettingsPage: React.FC = () => {
                 </span>
                 <input
                   type="number"
+                  min="0"
+                  step="1"
                   value={targetSavings}
                   onClick={(e) => (e.target as HTMLInputElement).select()}
                   onFocus={(e) => (e.target as HTMLInputElement).select()}
                   onChange={(e) => setTargetSavings(e.target.value)}
                   className="input-base has-left-icon !pl-11 w-full font-mono-num font-light"
-                  placeholder="25000"
+                  placeholder="40000"
                 />
               </div>
             </div>

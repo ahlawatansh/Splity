@@ -262,11 +262,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ mode = 'login', onSwitchMode
     setSubmitting(true);
     try {
       localStorage.setItem('profile_fullname', 'Ansh Ahlawat');
-      localStorage.setItem('profile_phone', '+91 98765 43210');
+      localStorage.setItem('profile_phone', '+91 00000 00000');
       localStorage.setItem('profile_ceiling', '45000');
-      localStorage.setItem('profile_savings', '10000');
+      localStorage.setItem('profile_savings', '40000');
       localStorage.setItem('profile_setup_done_demo-user-123', 'true');
-      localStorage.setItem('profile_setup_done_global', 'true');
       await login('demo@expensebuddy.app', 'Password123!');
     } catch (err: any) {
       setError(err.message || 'Demo login failed.');

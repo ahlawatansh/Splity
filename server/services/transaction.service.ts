@@ -179,7 +179,11 @@ export async function getMonthlySummary(userId: string, month: string): Promise<
   const mbRecord = db.data.monthlyBudgets.find((b) => b.userId === userId && b.month === month);
   const cbRecords = db.data.categoryBudgets.filter((b) => b.userId === userId && b.month === month);
   const cbTotal = cbRecords.reduce((s, b) => s + Number(b.limitAmount), 0);
-  const monthlyBudget = mbRecord ? mbRecord.limitAmount : (cbTotal > 0 ? cbTotal : 45000);
+  const user = db.data.users.find((u) => u.id === userId);
+  const userCeiling = user?.spendingCeiling && user.spendingCeiling > 0 ? user.spendingCeiling : 0;
+  const monthlyBudget = mbRecord
+    ? mbRecord.limitAmount
+    : (userCeiling > 0 ? userCeiling : (cbTotal > 0 ? cbTotal : 0));
 
   return {
     month,
