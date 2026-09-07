@@ -14,7 +14,7 @@
 ---
 
 ### 🌐 Live Deployment
-🔗 **Live Application URL:** https://ssplity.vercel.app/
+🔗 **Live Application URL:** https://splity-oa5o.onrender.com/
 
 ---
 
