@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌿 Splity — Intelligent Personal & Shared Finance OS
+# Splity — Intelligent Personal & Shared Finance OS
 
 **A modern, full-stack financial ledger, AI-powered budgeting copilot, group expense splitting engine, and verified PDF receipt generator.**
 
@@ -14,7 +14,7 @@
 ---
 
 ### 🌐 Live Deployment
-🔗 **Live Application URL:** `https://your-splity-deployment-link.vercel.app` *(Placeholder: Replace with your deployed link)*
+🔗 **Live Application URL:** `https://ssplity.vercel.app/`
 
 ---
 
@@ -22,9 +22,9 @@
 
 ## 📌 Project Overview
 
-**Splity** is a production-grade personal and shared finance management application built from scratch to help individuals and peer groups track expenditures, plan monthly budgets, split group bills seamlessly, and receive strategic financial insights via an AI Copilot.
+**Splity** is a production-grade personal and shared finance management application built to help individuals and peer groups track expenditures, plan monthly budgets, split group bills seamlessly, and receive strategic financial insights via an AI Copilot.
 
-Designed with an **editorial neo-minimalist aesthetic** (flat surface layers, zero harsh drop-shadows, progressive blur backdrops, and hardware-accelerated interactions), Splity blends everyday transaction logging with institutional-grade financial auditing.
+Designed with an **neo-minimalist aesthetic theme**, Splity blends everyday transaction logging with institutional-grade financial auditing.
 
 ---
 
@@ -107,110 +107,59 @@ Designed with an **editorial neo-minimalist aesthetic** (flat surface layers, ze
 
 ```text
 Splity/
-├── public/                       # Static public assets (fonts, brand logo, cursors)
-│   ├── fonts/                    # Custom web fonts (Glion, Roma, Qoeg)
-│   ├── custom-cursor.png         # Hardware-accelerated native cursor
-│   ├── custom-pointer.png        # Hardware-accelerated pointer cursor
-│   ├── splity-receipt-logo.png   # High-res vector receipt logo
-│   └── gradient.jpg              # Ambient blurred background texture
-├── screenshots/                  # Documentation & showcase screenshots
+├── public/                               # Static public assets (fonts, brand logo, cursors)
+│   ├── fonts/                            # Custom web fonts (Glion, Roma, Qoeg)
+│   ├── custom-cursor.png                 # Hardware-accelerated native cursor
+│   ├── custom-pointer.png                # Hardware-accelerated pointer cursor
+│   ├── splity-receipt-logo.png           # High-res vector receipt logo
+│   └── gradient.jpg                      # Ambient blurred background texture
+├── screenshots/                          # Documentation & showcase screenshots
 │   ├── dashboard-overview.png
 │   ├── ai-copilot-dock.png
 │   ├── record-transaction.png
 │   └── modern-receipt-pdf.png
-├── server/                       # Backend Express Architecture
-│   ├── middleware/               # Auth middleware (requireUser token verification)
-│   ├── services/                 # Modular business services:
-│   │   ├── auth.service.ts       # Registration, login, password reset
-│   │   ├── budget.service.ts     # Category limits & monthly ceilings
-│   │   ├── transaction.service.ts# Ledger CRUD & aggregations
-│   │   ├── friendGroup.service.ts# Group bill splits & pairwise debt
-│   │   ├── smartSearch.service.ts# Hybrid deterministic & AI intent engine
-│   │   ├── report.service.ts     # Monthly financial audit generator
-│   │   └── notification.service.ts# Budget alert triggers
-│   ├── crypto.ts                 # Secure hashing & token utilities
-│   ├── db.ts                     # Multi-tenant data store repository
-│   └── gemini.ts                 # Google Gemini API connector
-├── src/                          # Frontend React Client
-│   ├── api/                      # Type-safe HTTP client wrapper
-│   ├── components/               # Reusable UI components:
-│   │   ├── AppShell.tsx          # Navigation header, tabs, and layout
-│   │   ├── TopHybridSearchBar.tsx# Floating AI Copilot & search dock
-│   │   ├── CircularDateDial.tsx  # Interactive multi-month wheel selector
-│   │   ├── BudgetProgressBar.tsx # Smooth categorized utilization bars
-│   │   └── ModalContainer.tsx    # Accessible dialog overlays
-│   ├── context/                  # React Contexts (AuthContext, DateContext)
-│   ├── pages/                    # Core view pages:
-│   │   ├── LoginPage.tsx         # Responsive login & registration view
-│   │   ├── DashboardPage.tsx     # Executive financial overview
-│   │   ├── TransactionsPage.tsx  # Detailed searchable ledger
-│   │   ├── ReportsPage.tsx       # AI Monthly synthesis & PDF download
-│   │   ├── FriendsGroupsPage.tsx # Group expense split manager
-│   │   └── ProfileSettingsPage.tsx# User profile & budget ceilings
-│   ├── utils/                    # PDF vector generator & data encoders
-│   │   ├── pdfReceiptGenerator.ts# Modern vector PDF receipt builder
-│   │   └── receiptLogoData.ts    # Embedded logo raster data
-│   ├── types.ts                  # Shared TypeScript interfaces & types
-│   └── index.css                 # Global CSS rules & hardware cursor system
-├── package.json                  # Project dependencies & build scripts
-├── tsconfig.json                 # TypeScript strict configuration
-├── vite.config.ts                # Vite frontend bundler configuration
-└── server.ts                     # Main Express server entrypoint
+├── server/                               # Backend Express Architecture
+│   ├── middleware/                       # Auth middleware (requireUser token verification)
+│   ├── services/                         # Modular business services:
+│   │   ├── auth.service.ts               # Registration, login, password reset
+│   │   ├── budget.service.ts             # Category limits & monthly ceilings
+│   │   ├── transaction.service.ts        # Ledger CRUD & aggregations
+│   │   ├── friendGroup.service.ts        # Group bill splits & pairwise debt
+│   │   ├── smartSearch.service.ts        # Hybrid deterministic & AI intent engine
+│   │   ├── report.service.ts             # Monthly financial audit generator
+│   │   └── notification.service.ts       # Budget alert triggers
+│   ├── crypto.ts                         # Secure hashing & token utilities
+│   ├── db.ts                             # Multi-tenant data store repository
+│   └── gemini.ts                         # Google Gemini API connector
+├── src/                                  # Frontend React Client
+│   ├── api/                              # Type-safe HTTP client wrapper
+│   ├── components/                       # Reusable UI components:
+│   │   ├── AppShell.tsx                  # Navigation header, tabs, and layout
+│   │   ├── TopHybridSearchBar.tsx        # Floating AI Copilot & search dock
+│   │   ├── CircularDateDial.tsx          # Interactive multi-month wheel selector
+│   │   ├── BudgetProgressBar.tsx         # Smooth categorized utilization bars
+│   │   └── ModalContainer.tsx            # Accessible dialog overlays
+│   ├── context/                          # React Contexts (AuthContext, DateContext)
+│   ├── pages/                            # Core view pages:
+│   │   ├── LoginPage.tsx                 # Responsive login & registration view
+│   │   ├── DashboardPage.tsx             # Executive financial overview
+│   │   ├── TransactionsPage.tsx          # Detailed searchable ledger
+│   │   ├── ReportsPage.tsx               # AI Monthly synthesis & PDF download
+│   │   ├── FriendsGroupsPage.tsx         # Group expense split manager
+│   │   └── ProfileSettingsPage.tsx       # User profile & budget ceilings
+│   ├── utils/                            # PDF vector generator & data encoders
+│   │   ├── pdfReceiptGenerator.ts        # Modern vector PDF receipt builder
+│   │   └── receiptLogoData.ts            # Embedded logo raster data
+│   ├── types.ts                          # Shared TypeScript interfaces & types
+│   └── index.css                         # Global CSS rules & hardware cursor system
+├── package.json                          # Project dependencies & build scripts
+├── tsconfig.json                         # TypeScript strict configuration
+├── vite.config.ts                        # Vite frontend bundler configuration
+└── server.ts                             # Main Express server entrypoint
 ```
 
 ---
 
-## 🚀 Getting Started Locally
-
-Follow these simple steps to run Splity on your local machine:
-
-### 1. Prerequisites
-- **Node.js**: Version 18.0.0 or higher
-- **npm**: Version 9.0.0 or higher
-
-### 2. Clone the Repository
-```bash
-git clone https://github.com/your-username/splity.git
-cd splity
-```
-
-### 3. Install Dependencies
-```bash
-npm install
-```
-
-### 4. Configure Environment Variables
-Create a `.env` file in the root directory (or copy from `.env.example`):
-```env
-# Server Configuration
-PORT=3000
-
-# Google Gemini API Key (For AI Copilot & Smart Reports)
-GEMINI_API_KEY=your_google_gemini_api_key_here
-
-# JWT Secret Key for Session Authentication
-JWT_SECRET=your_jwt_secret_key_here
-```
-
-> **Note:** You can obtain a free Gemini API key from [Google AI Studio](https://aistudio.google.com/).
-
-### 5. Start the Development Server
-```bash
-npm run dev
-```
-Open your browser and navigate to:
-```text
-http://localhost:3000
-```
-
-### 6. Build for Production
-To create an optimized production build:
-```bash
-npm run build
-npm start
-```
-
----
 
 ## 📡 REST API Summary
 
@@ -230,7 +179,7 @@ npm start
 
 ---
 
-## 🎓 Academic & Placement Context
+## 🎓 Academic Context
 
 - **Author:** Ansh Ahlawat
 - **Project Type:** Full-Stack Web Development & Applied AI
